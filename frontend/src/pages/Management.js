@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
+import Header from "./Header";
+
 
 function NewManagement() {
   const [year, setYear] = useState("");
@@ -42,6 +44,9 @@ function NewManagement() {
   
 
   return (
+    <div>
+      <Header />
+    
     <form onSubmit={handleSubmit}>
       <h2>Criar Nova Gestão</h2>
       <input
@@ -67,6 +72,7 @@ function NewManagement() {
       </select>
       <button type="submit">Criar Gestão</button>
     </form>
+    </div>
   );
 }
 

@@ -3,43 +3,49 @@ const router = express.Router();
 const Management = require("../models/Management");
 
 // Endpoint para criar uma nova gestão
-router.post("/create", async (req, res) => {
-  const { year, months, createdBy, type, name } = req.body;
-
-  // Validar se os campos obrigatórios estão presentes
-  if (!year || !months || !Array.isArray(months) || !type || !name) {
-    return res.status(400).json({ message: "Ano, meses, tipo e nome são obrigatórios!" });
-  }
-
-  console.log("Dados recebidos:", req.body); // Log dos dados recebidos
-
+router.post('/management/create', async (req, res) => {
   try {
-    // Criar a gestão
+    const { year, months, type, name, createdBy } = req.body;
+
+    const formattedMonths = months.map((month) => ({
+      month, // Apenas a string do mês
+      bets: []
+    }));
+
     const newManagement = new Management({
       year,
-      months: months.map((month) => ({
-        month,
-        bets: [],
-      })),
-      type,  // Passando o tipo
-      name,  // Passando o nome
-      createdBy,
+      months: formattedMonths,
+      type,
+      name,
+      createdBy
     });
 
-    console.log("Novo objeto de gestão:", newManagement); // Log do objeto antes de salvar
+    await newManagement.save();
 
-    const savedManagement = await newManagement.save();
-    console.log("Gestão salva:", savedManagement); // Log após salvar
-
-    res.status(201).json({
-      message: "Gestão criada com sucesso!",
-      management: savedManagement,
-    });
+    res.status(201).json({ message: "Gestão criada com sucesso!", management: newManagement });
   } catch (error) {
     console.error("Erro ao criar gestão:", error);
-    res.status(500).json({ message: "Erro ao criar gestão." });
+    res.status(400).json({ message: "Erro ao criar gestão.", error });
   }
 });
+
+
+// Endpoint para buscar gestões do usuário logado
+router.get('/management', async (req, res) => {
+  try {
+    // Supondo que o middleware de autenticação já adiciona o ID do usuário no req.user
+    const userId = req.user.id; // Certifique-se de ter um middleware que popula req.user
+
+    // Filtrar gestões pelo usuário logado
+    const managements = await Management.find({ createdBy: userId });
+
+    res.status(200).json({ managements });
+  } catch (error) {
+    console.error("Erro ao buscar gestões:", error);
+    res.status(400).json({ message: "Erro ao buscar gestões.", error });
+  }
+});
+
 
 
 module.exports = router;

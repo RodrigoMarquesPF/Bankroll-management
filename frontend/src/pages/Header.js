@@ -2,13 +2,15 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-function Header() {
+function Header({ setBankManagements = () => {} }) {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem("token"); // Remove o token do localStorage
-    navigate("/login"); // Redireciona para a página de login
+    localStorage.removeItem("token");
+    setBankManagements([]); // Limpa gestões, se fornecido
+    navigate("/login");
   };
+  
 
   const handleGoHome = () => {
     navigate("/home"); // Redireciona para a Home
